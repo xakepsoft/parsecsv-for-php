@@ -906,18 +906,12 @@ class parseCSV {
             // strip off BOM (UTF-8)
             if (substr($data, 0, 3) === "\xef\xbb\xbf")
                 $data = substr($data, 3);
+            // strip off BOM (UTF-32)
+            else if ($bom4 === "\xff\xfe\x00\x00" || $bom4 === "\x00\x00\xfe\xff")
+                $data = substr($data, 4);
             // strip off BOM (UTF-16LE)
-            else if ($bom2 === "\xff\xfe")
+            else if ($bom2 === "\xff\xfe" || $bom2 === "\xfe\xff")
                 $data = substr($data, 2);
-            // strip off BOM (UTF-16BE)
-            else if ($bom2 === "\xfe\xff")
-                $data = substr($data, 2);
-            // strip off BOM (UTF-32LE)
-            else if ($bom4 === "\xff\xfe\x00\x00")
-                $data = substr($data, 4);
-            // strip off BOM (UTF-32BE)
-            else if ($bom4 === "\x00\x00\xfe\xff")
-                $data = substr($data, 4);
 
             $this->file_data = &$data;
             return true;
