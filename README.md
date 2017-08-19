@@ -36,8 +36,8 @@ require_once 'parsecsv.lib.php';
 * Error detection for incorrectly formatted input. It attempts to be
   intelligent, but can not be trusted 100% due to the structure of CSV, and
   how different programs like Excel for example outputs CSV data.
-* Support for character encoding conversion using PHP's _iconv_ function
-  (requires PHP 5).
+* Support for character encoding conversion using PHP's _mb_convert_encoding_ function
+  (requires PHP mbstring extension).
 * Supports both PHP 4 & 5.
 
 
