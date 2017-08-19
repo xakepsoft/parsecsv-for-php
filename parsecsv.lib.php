@@ -909,7 +909,7 @@ class parseCSV {
             // strip off BOM (UTF-32)
             else if ($bom4 === "\xff\xfe\x00\x00" || $bom4 === "\x00\x00\xfe\xff")
                 $data = substr($data, 4);
-            // strip off BOM (UTF-16LE)
+            // strip off BOM (UTF-16)
             else if ($bom2 === "\xff\xfe" || $bom2 === "\xfe\xff")
                 $data = substr($data, 2);
 
