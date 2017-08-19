@@ -849,7 +849,11 @@ class parseCSV {
         }
 
         if ($this->convert_encoding) {
-            $string = iconv($this->input_encoding, $this->output_encoding, $string);
+            //$string = iconv($this->input_encoding, $this->output_encoding, $string);
+            $substchar = ini_get('mbstring.substitute_character');
+            ini_set('mbstring.substitute_character', "none");
+            $string = mb_convert_encoding($string, $this->output_encoding, $this->input_encoding);
+            ini_set('mbstring.substitute_character', $substchar);
         }
 
         return $string;
@@ -885,7 +889,11 @@ class parseCSV {
             }
 
             if ($this->convert_encoding) {
-                $data = iconv($this->input_encoding, $this->output_encoding, $data);
+                //$data = iconv($this->input_encoding, $this->output_encoding, $data);
+                $substchar = ini_get('mbstring.substitute_character');
+                ini_set('mbstring.substitute_character', "none");
+                $data = mb_convert_encoding($data, $this->output_encoding, $this->input_encoding);
+                ini_set('mbstring.substitute_character', $substchar);
             }
 
             if (substr($data, -1) != "\n") {
