@@ -888,14 +888,6 @@ class parseCSV {
                 $data = ltrim($strip[1]);
             }
 
-            if ($this->convert_encoding) {
-                //$data = iconv($this->input_encoding, $this->output_encoding, $data);
-                $substchar = ini_get('mbstring.substitute_character');
-                ini_set('mbstring.substitute_character', "none");
-                $data = mb_convert_encoding($data, $this->output_encoding, $this->input_encoding);
-                ini_set('mbstring.substitute_character', $substchar);
-            }
-
             if (substr($data, -1) != "\n") {
                 $data .= "\n";
             }
@@ -903,16 +895,35 @@ class parseCSV {
             $bom2 = substr($data, 0, 2);
             $bom4 = substr($data, 0, 4);
 
-            // strip off BOM (UTF-8)
-            if (substr($data, 0, 3) === "\xef\xbb\xbf")
+            if (substr($data, 0, 3) === "\xef\xbb\xbf") {
                 $data = substr($data, 3);
-            // strip off BOM (UTF-32)
-            else if ($bom4 === "\xff\xfe\x00\x00" || $bom4 === "\x00\x00\xfe\xff")
+                if('' === $this->input_encoding || 'ISO-8859-1' === $this->input_encoding) $this->input_encoding = 'UTF-8';
+            }
+            else if ($bom4 === "\x00\x00\xfe\xff") {
                 $data = substr($data, 4);
-            // strip off BOM (UTF-16)
-            else if ($bom2 === "\xff\xfe" || $bom2 === "\xfe\xff")
+                if('' === $this->input_encoding || 'ISO-8859-1' === $this->input_encoding) $this->input_encoding = 'UTF-32';
+            }
+            else if ($bom4 === "\xff\xfe\x00\x00") {
+                $data = substr($data, 4);
+                if('' === $this->input_encoding || 'ISO-8859-1' === $this->input_encoding) $this->input_encoding = 'UTF-32LE';
+            }
+            else if ($bom2 === "\xfe\xff") {
                 $data = substr($data, 2);
+                if('' === $this->input_encoding || 'ISO-8859-1' === $this->input_encoding) $this->input_encoding = 'UTF-16';
+            }
+            else if ($bom2 === "\xff\xfe") {
+                $data = substr($data, 2);
+                if('' === $this->input_encoding || 'ISO-8859-1' === $this->input_encoding) $this->input_encoding = 'UTF-16LE';
+            }
 
+            if ($this->convert_encoding) {
+                //$data = iconv($this->input_encoding, $this->output_encoding, $data);
+                $substchar = ini_get('mbstring.substitute_character');
+                ini_set('mbstring.substitute_character', "none");
+                $data = mb_convert_encoding($data, $this->output_encoding, $this->input_encoding);
+                ini_set('mbstring.substitute_character', $substchar);
+            }
+            
             $this->file_data = &$data;
             return true;
         }
