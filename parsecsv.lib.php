@@ -920,15 +920,24 @@ class parseCSV {
             {
                 if('' === $this->input_encoding)
                 {
-                    @$this->input_encoding = mb_detect_encoding( $data, array(
-                        'ASCII',
-                        'Windows-1251','Windows-1252','Windows-1254','KOI8-R','KOI8-U',
-                        'ISO-8859-1','ISO-8859-2','ISO-8859-3','ISO-8859-4','ISO-8859-5','ISO-8859-6','ISO-8859-7',
-                        'ISO-8859-8','ISO-8859-9','ISO-8859-10','ISO-8859-13','ISO-8859-14','ISO-8859-15','ISO-8859-16',
-                        'UTF-8','UTF-32','UTF-32BE','UTF-32LE','UTF-16','UTF-16BE','UTF-16LE'
-                        ), TRUE );
-
-                    if(FALSE === $this->input_encoding) $this->input_encoding = 'ISO-8859-1';
+                    // Check for UTF-8 specific characters
+                    if(preg_match('%(?:
+                        [\xC2-\xDF][\x80-\xBF]                  # non-overlong 2-byte
+                        |\xE0[\xA0-\xBF][\x80-\xBF]             # excluding overlongs
+                        |[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}      # straight 3-byte
+                        |\xED[\x80-\x9F][\x80-\xBF]             # excluding surrogates
+                        |\xF0[\x90-\xBF][\x80-\xBF]{2}          # planes 1-3
+                        |[\xF1-\xF3][\x80-\xBF]{3}              # planes 4-15
+                        |\xF4[\x80-\x8F][\x80-\xBF]{2}          # plane 16
+                    )+%xs', $data ))
+                    {
+                        $this->input_encoding = 'UTF-8';
+                    }
+                    else
+                    {
+                        $this->input_encoding = mb_detect_encoding( $data, mb_detect_order(), TRUE );
+                        if(FALSE === $this->input_encoding) $this->input_encoding = 'ISO-8859-1';
+                    }
                 }
                             
                 $substchar = ini_get('mbstring.substitute_character');
